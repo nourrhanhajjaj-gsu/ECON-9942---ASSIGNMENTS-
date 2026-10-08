@@ -3,7 +3,6 @@ from os import environ
 SESSION_CONFIGS = [
     dict(
         name='public_goods',
-        display_name='Public Goods Game',
         app_sequence=['vcm_app'],
         num_demo_participants=6,
     ),
