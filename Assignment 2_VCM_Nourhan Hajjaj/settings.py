@@ -4,6 +4,7 @@ SESSION_CONFIGS = [
     dict(
         name='public_goods',
         app_sequence=['vcm_app'],
+        display_name='Public Goods Game',
         num_demo_participants=6,
     ),
 ]
