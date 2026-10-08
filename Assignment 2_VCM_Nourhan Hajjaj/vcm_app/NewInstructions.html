@@ -1,0 +1,129 @@
+{{extends "global/Page.html"}}
+{{ block title }}
+    <span class="instruction-heading">Instructions </span>
+    <span class="instruction-subtitle">Please read carefully the new instructions</span>
+{{ endblock }}
+
+{{ block content }}
+
+<style>
+    <style>
+    .otree-body {
+        max-width: 900px;
+        color: #243247;
+    }
+
+    .otree-title {
+        text-align: left;
+        margin-bottom: 40px;
+    }
+
+    .instruction-heading {
+        display: block;
+        margin-bottom: 8px;
+        color: #424b54;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+        .instruction-subtitle {
+        display: block;
+        margin-bottom: 8px;
+        color: #49111c;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .instruction-card {
+        padding: 24px;
+        margin-bottom: 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        line-height: 1.7;
+    }
+
+    .instruction-card h4 {
+        color: #1e3a5f;
+        margin-bottom: 12px;
+    }
+
+    .instruction-card p:last-child {
+        margin-bottom: 0;
+    }
+
+    .payoff-box {
+        background: #eaf2ff;
+        border-left: 4px solid #2457a7;
+    }
+
+    .btn-primary {
+        background: #2457a7;
+        border-color: #2457a7;
+        border-radius: 8px;
+        padding: 10px 28px;
+    }
+</style>
+
+<div class="instruction-card">
+    <h4>Please read the new instructions</h4>
+
+    <p>
+        You are now randomly assigned to a new group of <strong>{{ C.PLAYERS_PER_GROUP }}
+        participants</strong>, including yourself.
+        <br>
+        You will be rematched <strong> every round </strong> with new players for the next 5 rounds.
+    </p>
+
+    <p>
+        At the beginning of each round, you receive
+        <strong>{{ C.ENDOWMENT }}</strong>.
+        You choose how much of your endowment you would like to contribute
+        to the group project.
+    </p>
+
+    <p>
+        Each point contributed to the group project, it will be saved in a <strong> group account </strong>.
+
+        <strong> The total group contributions </strong> inside this group account is then multiplied
+        by <strong>{{ C.MPCR_2 }} </strong> and each individual share is distributed among the group members equally</strong>,
+        regardless of how much they personally contributed.
+    </p>
+</div>
+
+<div class="instruction-card payoff-box">
+    <h4>Round earnings</h4>
+
+
+    <p>
+        As before, for each round, after everyone submit their contribution.
+        <br>
+        You will see the <strong> total contributions by the group </strong>,
+        and your individual share for each contribution
+    </p>
+
+    <p>
+        Your round results are now calculated accordingly:
+        <br>
+         Your initial endowment − your contribution
+        + (total group contribution × {{ C.MPCR_2}})
+    </p>
+</div>
+<div class="instruction-card">
+    <h4>Final Payoffs</h4>
+
+        <p>
+        <strong>Every round counts toward your final payment.</strong>
+                <br>
+
+        Your final payment is <strong> the summation of total endowment left from each round </strong> +
+        <strong> individual share from the public account</strong>
+    </p>
+</div>
+
+{{ next_button }}
+
+{{ endblock }}

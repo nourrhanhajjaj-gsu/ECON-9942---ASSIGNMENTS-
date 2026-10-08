@@ -1,0 +1,293 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+    <span class="round-heading">Round {{ player.round_number }}</span>
+    <span class="results-heading">Round Results</span>
+{{ endblock }}
+
+{{ block content }}
+
+<style>
+    .otree-body {
+        max-width: 900px;
+        color: #243247;
+    }
+
+    .otree-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .round-heading {
+        display: block;
+        margin-bottom: 8px;
+        color: #64748b;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .results-heading {
+        display: block;
+        color: #243247;
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -1px;
+    }
+
+    .results-details {
+        background: #f1f3f5;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .result-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        padding: 22px 24px;
+    }
+
+    .result-row + .result-row {
+        border-top: 1px solid #dce2e9;
+    }
+
+    .result-label {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .result-value {
+        font-size: 22px;
+        font-weight: 600;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .payoff-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .payoff-card {
+        padding: 26px;
+        background: #f1f3f5;
+        border-radius: 14px;
+    }
+
+    .payoff-card.total {
+        background: #d8ddd0;
+    }
+
+    .payoff-label {
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .payoff-value {
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .payoff-note {
+        margin-top: 12px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .history-section {
+        margin-top: 32px;
+    }
+
+    .history-section h4 {
+        margin-bottom: 16px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #243247;
+    }
+
+    .history-table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 16px 20px;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .history-table th:first-child,
+    .history-table td:first-child {
+        text-align: left;
+    }
+
+    .history-table th {
+        background: #e9edf2;
+        color: #475569;
+        font-weight: 600;
+    }
+
+    .history-table td {
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .history-table tbody tr {
+        background: #fbfbfb;
+    }
+
+    .next-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 32px;
+    }
+
+    .next-container .otree-btn-next {
+        float: none;
+        margin: 0;
+        min-width: 150px;
+        padding: 12px 32px;
+        background: #2457a7;
+        border-color: #2457a7;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .next-container .otree-btn-next:hover {
+        background: #1c4585;
+    }
+
+    @media (max-width: 600px) {
+        .payoff-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .result-row {
+            padding: 18px;
+            gap: 16px;
+        }
+
+        .result-value {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="results-details">
+    <div class="result-row">
+        <span class="result-label">
+            Current Endowment after the contribution
+        </span>
+        <span class="result-value">
+            {{ endowment_kept }}
+        </span>
+    </div>
+
+    <div class="result-row">
+        <span class="result-label">
+            Your contribution this round
+        </span>
+        <span class="result-value">
+            {{ player.player_contribution }}
+        </span>
+    </div>
+
+    <div class="result-row">
+        <span class="result-label">
+            Total group contribution this round
+        </span>
+        <span class="result-value">
+            {{ group.total_contribution }}
+        </span>
+    </div>
+
+    <div class="result-row">
+        <span class="result-label">
+            Group Account Multiplier
+        </span>
+        <span class="result-value">
+            {{ group.mpcr }}
+        </span>
+    </div>
+
+    <div class="result-row">
+        <span class="result-label">
+            Your individual share
+        </span>
+        <span class="result-value">
+            {{ group.individual_share }}
+        </span>
+    </div>
+</div>
+
+<div class="payoff-grid">
+    <div class="payoff-card">
+        <div class="payoff-label">Your payoff this round</div>
+        <div class="payoff-value">{{ player.payoff }}</div>
+        <div class="payoff-note">
+            Remaining endowment + your individual share from the group account
+        </div>
+    </div>
+
+    <div class="payoff-card total">
+        <div class="payoff-label">Your accumulated payoff</div>
+        <div class="payoff-value">{{ accumulated_payoff }}</div>
+        <div class="payoff-note">
+            Total earnings till this round
+        </div>
+    </div>
+</div>
+
+{{ if player.round_number > 1 }}
+<div class="history-section">
+    <h4>Your round history</h4>
+
+    <div class="history-table-wrapper">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th scope="col">Round</th>
+                    <th scope="col">Your contribution</th>
+                    <th scope="col">Group contribution</th>
+                    <th scope="col">Group Account Multiplier</th>
+                    <th scope="col">Your round payoff</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{ for p in history }}
+                <tr>
+                    <td>{{ p.round_number }}</td>
+                    <td>{{ p.player_contribution }}</td>
+                    <td>{{ p.group.total_contribution }}</td>
+                    <td>{{ p.group.mpcr }}</td>
+                    <td>{{ p.payoff }}</td>
+                </tr>
+                {{ endfor }}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ endif }}
+
+<div class="next-container">
+    {{ next_button }}
+</div>
+
+{{ endblock }}

@@ -1,0 +1,280 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+    <span class="round-heading">Round {{ player.round_number }} out of {{C.NUM_ROUNDS}} </span>
+{{ endblock }}
+
+{{ block content }}
+
+<style>
+    .otree-body {
+        max-width: 900px;
+        color: #243247;
+    }
+    .otree-title{
+        text-align: left;
+        margin-bottom: 40px;
+    }
+    .round-heading {
+        display: block;
+        margin-bottom: 8px;
+        color: #424b54;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    .intro {
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    .decision-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .field-panel {
+        padding: 24px;
+        background: #f1f3f5;
+        border-radius: 12px;
+    }
+
+    .field-panel label {
+        display: block;
+        min-height: 48px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .field-panel .form-control {
+        min-height: 50px;
+        font-size: 20px;
+        border-radius: 8px;
+    }
+
+    .field-panel .input-group {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #remaining-endowment {
+        background: #e2e7ed;
+        color: #243247;
+    }
+
+    .help-text {
+        display: block;
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .history-section {
+        margin-top: 32px;
+    }
+
+    .history-section h4 {
+        margin-bottom: 16px;
+        color: #243247;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .history-table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 16px 20px;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .history-table th:first-child,
+    .history-table td:first-child {
+        text-align: left;
+    }
+
+    .history-table th {
+        background: #e9edf2;
+        color: #475569;
+        font-weight: 600;
+    }
+
+    .history-table td {
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .history-table tbody tr {
+        background: #fbfbfb;
+    }
+
+    .next-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 32px;
+    }
+
+    .next-container .otree-btn-next {
+        float: none;
+        margin: 0;
+        min-width: 150px;
+        padding: 12px 32px;
+        background: #2457a7;
+        border-color: #2457a7;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 600px) {
+        .decision-fields {
+            grid-template-columns: 1fr;
+        }
+
+        .field-panel label {
+            min-height: auto;
+        }
+    }
+</style>
+
+<p class="intro">
+    You start this round with {{ C.ENDOWMENT }}. please choose below how much to contribute to the group project.
+    <br>
+    You can only contribute whole numbers (decimals are not allowed)
+</p>
+
+<div class="decision-fields">
+    <div class="field-panel">
+        {{ formfield 'player_contribution' label="How much will you contribute to the group project?" }}
+    </div>
+
+    <div class="field-panel">
+        <label for="remaining-endowment">
+            Your remaining endowment
+        </label>
+
+        <input
+            type="text"
+            id="remaining-endowment"
+            class="form-control"
+            readonly
+            aria-describedby="remaining-help"
+        >
+
+        <small id="remaining-help" class="help-text">
+            Your starting endowment minus your contribution.
+        </small>
+    </div>
+</div>
+
+<p
+    id="contribution-warning"
+    class="text-danger mt-3"
+    role="status"
+></p>
+
+{{ if player.round_number > 1 }}
+<div class="history-section">
+    <h4>Your previous rounds</h4>
+
+    <div class="history-table-wrapper">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th scope="col">Round</th>
+                    <th scope="col">Your Contribution</th>
+                    <th scope="col">Group Contribution</th>
+                    <th scope="col">Group Account multiplier</th>
+                    <th scope="col">Your Payoff</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{ for p in history }}
+                <tr>
+                    <td>{{ p.round_number }}</td>
+                    <td>{{ p.player_contribution }}</td>
+                    <td>{{ p.group.total_contribution }}</td>
+                    <td>{{ group.mpcr }}</td>
+                    <td>{{ p.payoff }}</td>
+                </tr>
+                {{ endfor }}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ endif }}
+
+<div class="next-container">
+    {{ next_button }}
+</div>
+
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    function setupContribution() {
+        const endowment = Number(js_vars.endowment);
+        const contribution = document.querySelector(
+            '[name="player_contribution"]'
+        );
+        const remaining = document.getElementById(
+            'remaining-endowment'
+        );
+        const warning = document.getElementById(
+            'contribution-warning'
+        );
+
+        contribution.min = 0;
+        contribution.max = endowment;
+        contribution.step = 1;
+
+        function updateEndowment() {
+            const rawValue = contribution.value.trim();
+            const amount = rawValue === '' ? 0 : Number(rawValue);
+
+            const invalid =
+                contribution.validity.badInput ||
+                !Number.isFinite(amount) ||
+                !Number.isInteger(amount) ||
+                amount < 0 ||
+                amount > endowment;
+
+            if (invalid) {
+                const message =
+                    `Enter a whole number between 0 and ${endowment}.`;
+
+                remaining.value = '—';
+                warning.textContent = message;
+                contribution.setCustomValidity(message);
+                return;
+            }
+
+            contribution.setCustomValidity('');
+            warning.textContent = '';
+            remaining.value = (endowment - amount).toFixed(2);
+        }
+
+        contribution.addEventListener('input', updateEndowment);
+        window.addEventListener('pageshow', updateEndowment);
+        updateEndowment();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupContribution);
+    } else {
+        setupContribution();
+    }
+</script>
+{{ endblock }}
